@@ -1,0 +1,117 @@
+Business Sentiment Indices (BSIs) will consist of values ranging from 0 to 200 where the general 
+interpretation will be as follows, 
+BSI=100 means business sentiment is unchanged 
+BSI>100 means business sentiment has improved/increased 
+BSI<100 means business sentiment has worsened/decreased 
+ 
+ 
+ 
+ 
+Executive Summary  
+ 
+• The balance of opinion on the business outlook continued to 
+remain in the negative territory for the 10th consecutive quarter 
+during Q2 2019 mainly due to the setback emanating from the 
+Easter Sunday attacks, and even though a slight improvement is 
+observed, it is expected to remain negative in Q3 2019 as well, 
+with the prevailing uncertain environment in the country.  
+• The demand indicator reflected that all three major activities 
+slowed down during Q2 2019. Meanwhile, demand for Industry 
+and Services related activities are expected to improve during Q3 
+2019. 
+• Respondents intend to recruit employees mainly to fill vacant 
+positions. Further, capacity utilization of the firms are expected 
+to improve in Q3 2019 and investments are expected to increase 
+in Q3 2019. 
+• The output and input prices are expected to increase at a slower 
+rate in Q3 2019 compared to Q3 2018. 
+• The demand for bank credit increased during Q2 2019 especially 
+in the context of deteriorated cash flow situation, although access 
+to credit tightened. Meanwhile, majority of the firms expect to 
+borrow during Q3 2019 to cover the operational expenses.  
+ 
+  
+  
+ 
+ 
+95 97 87 78 66 61 74 63 80 
+Q3
+Q4
+Q1
+Q2
+Q3
+Q4
+Q1
+Q2
+Q3
+(Pros.)
+2017
+2018
+2019
+Business Condition
+122 
+111 
+116 
+125 
+120 
+86 
+121 
+119 
+118 
+120 
+127 
+125 
+90 
+117 
+Q1
+Q2
+Q3
+Q4
+Q1
+Q2
+Q3
+(Pros.)
+2018
+2019
+Business Activities
+Demand (Y-o-Y)
+Sales (Y-o-Y)
+22%
+78%
+Purpose of Intended Future 
+Borrowings
+Investment
+Operating
+ 
+ 
+Business Outlook Survey 
+2nd Quarter 2019 
+ 
+REPORT 2019Q02 
+ 
+128 
+136 
+137 
+126 
+145 
+139 
+125 
+105 
+102 
+91 
+80 
+81 
+79 
+Q1
+Q2
+Q3
+Q4
+Q1
+Q2
+Q3
+(Pros.)
+2018
+2019
+Credit Conditions
+Demand for Bank Credit
+Access to Credit

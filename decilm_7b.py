@@ -29,7 +29,7 @@ decilm = AutoModelForCausalLM.from_pretrained(
     model_name,
     quantization_config=bnb_config,
     device_map="auto",
-    use_cache=False,
+    use_cache=True,
     trust_remote_code=True
 )
 
@@ -214,8 +214,8 @@ training_args = TrainingArguments(
     # basically just train for 5 epochs, you should train for longer
     max_steps=int(len(training_data) * 1),
     warmup_steps=150,
-    # bf16=True,
-    # tf32=True,
+    bf16=True,
+    tf32=True,
     gradient_checkpointing=True,
     max_grad_norm=0.3,  # from the paper
     lr_scheduler_type="reduce_lr_on_plateau",
