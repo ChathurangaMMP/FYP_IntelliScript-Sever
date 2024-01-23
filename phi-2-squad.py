@@ -16,7 +16,7 @@ model_name = "microsoft-phi-2"
 
 phi2 = AutoModelForCausalLM.from_pretrained(
     model_name,
-    torch_dtype=torch.float16,
+    torch_dtype="auto",
     device_map="auto",
     trust_remote_code=True,
     # revision='834565c23f9b28b96ccbeabe614dd906b6db551a'
@@ -105,7 +105,7 @@ training_args = TrainingArguments(
     # basically just train for 5 epochs, you should train for longer
     max_steps=int(len(training_data) * 1),
     warmup_steps=350,
-    # bf16=True,
+    bf16=True,
     # tf32=True,
     gradient_checkpointing=True,
     max_grad_norm=0.3,  # from the paper
@@ -133,8 +133,8 @@ trainer.save_model()
 
 instruction_tuned_model = AutoPeftModelForCausalLM.from_pretrained(
     training_args.output_dir,
-    torch_dtype=torch.float16,
-    # torch_dtype='auto',
+    # torch_dtype=torch.float16,
+    torch_dtype='auto',
     trust_remote_code=True,
     device_map='auto',
     offload_folder="offload/"
