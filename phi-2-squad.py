@@ -96,8 +96,8 @@ def slice_dataset(dataset, num_rows):
     return subset_dataset
 
 
-training_data = slice_dataset(train_data_mapped, 30000)
-validation_data = slice_dataset(val_data_mapped, 5000)
+training_data = slice_dataset(train_data_mapped, 20000)
+validation_data = slice_dataset(val_data_mapped, 4000)
 
 # we set our lora config to be the same as qlora
 lora_config = LoraConfig(
@@ -122,13 +122,13 @@ training_args = TrainingArguments(
     # per_device_train_batch_size=16,
     log_level="debug",
     optim="paged_adamw_8bit",
-    save_steps=20000,
-    logging_steps=10000,
+    save_steps=5000,
+    logging_steps=2000,
     learning_rate=3e-5,
     weight_decay=0.01,
     # basically just train for 5 epochs, you should train for longer
     max_steps=int(len(training_data) * 1),
-    warmup_steps=350,
+    warmup_steps=150,
     # bf16=True,
     # tf32=True,
     gradient_checkpointing=True,
