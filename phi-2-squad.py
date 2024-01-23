@@ -122,8 +122,8 @@ training_args = TrainingArguments(
     # per_device_train_batch_size=16,
     log_level="debug",
     optim="paged_adamw_8bit",
-    save_steps=5000,
-    logging_steps=2000,
+    save_steps=1000,
+    logging_steps=500,
     learning_rate=3e-6,
     weight_decay=0.01,
     # basically just train for 5 epochs, you should train for longer
