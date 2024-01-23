@@ -108,7 +108,7 @@ training_args = TrainingArguments(
     # basically just train for 5 epochs, you should train for longer
     max_steps=int(len(training_data) * 1),
     warmup_steps=350,
-    bf16=True,
+    # bf16=True,
     # tf32=True,
     gradient_checkpointing=True,
     max_grad_norm=0.3,  # from the paper
