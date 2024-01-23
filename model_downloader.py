@@ -1,7 +1,6 @@
 from huggingface_hub import snapshot_download
 
-snapshot_download(repo_id="microsoft/phi-2",
-                  revision="834565c23f9b28b96ccbeabe614dd906b6db551a")
+snapshot_download(repo_id="microsoft/phi-2", local_dir="microsoft-phi-2")
 
 # # Load model directly
 # from huggingface_hub import hf_hub_download
