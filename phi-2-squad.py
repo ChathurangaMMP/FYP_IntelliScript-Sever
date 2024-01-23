@@ -96,14 +96,14 @@ def slice_dataset(dataset, num_rows):
     return subset_dataset
 
 
-training_data = slice_dataset(train_data_mapped, 20000)
-validation_data = slice_dataset(val_data_mapped, 4000)
+training_data = slice_dataset(train_data_mapped, 10000)
+validation_data = slice_dataset(val_data_mapped, 2000)
 
 # we set our lora config to be the same as qlora
 lora_config = LoraConfig(
     r=16,
     lora_alpha=32,
-    lora_dropout=0.1,
+    lora_dropout=0.05,
     #  The modules to apply the LoRA update matrices.
     target_modules=["Wqkv", "fc1", "fc2"],
     task_type="CAUSAL_LM"
@@ -124,7 +124,7 @@ training_args = TrainingArguments(
     optim="paged_adamw_8bit",
     save_steps=5000,
     logging_steps=2000,
-    learning_rate=3e-5,
+    learning_rate=3e-6,
     weight_decay=0.01,
     # basically just train for 5 epochs, you should train for longer
     max_steps=int(len(training_data) * 1),
