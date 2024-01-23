@@ -81,7 +81,7 @@ lora_config = LoraConfig(
     lora_alpha=32,
     lora_dropout=0.1,
     #  The modules to apply the LoRA update matrices.
-    target_modules=["Wqkv", "out_proj"],
+    target_modules=["Wqkv", "fc1", "fc2"],
     task_type="CAUSAL_LM"
 )
 
