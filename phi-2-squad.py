@@ -16,7 +16,7 @@ model_name = "microsoft-phi-2"
 
 phi2 = AutoModelForCausalLM.from_pretrained(
     model_name,
-    torch_dtype=torch.float32,
+    torch_dtype=torch.float16,
     device_map="auto",
     trust_remote_code=True,
     use_cache=False
@@ -137,7 +137,7 @@ trainer.save_model()
 
 instruction_tuned_model = AutoPeftModelForCausalLM.from_pretrained(
     training_args.output_dir,
-    torch_dtype=torch.float32,
+    torch_dtype=torch.float16,
     # torch_dtype='auto',
     trust_remote_code=True,
     device_map='auto',
