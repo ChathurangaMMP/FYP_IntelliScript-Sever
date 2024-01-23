@@ -1,3 +1,5 @@
+from datasets import Dataset
+import pandas as pd
 from huggingface_hub import login
 from peft import AutoPeftModelForCausalLM
 from transformers import TrainingArguments
@@ -76,8 +78,26 @@ def generate_prompt_for_finetuning(data_point):
     return {'text': text}
 
 
-training_data = train_data.map(generate_prompt_for_finetuning)
-validation_data = val_data.map(generate_prompt_for_finetuning)
+train_data_mapped = train_data.map(generate_prompt_for_finetuning)
+val_data_mapped = val_data.map(generate_prompt_for_finetuning)
+
+
+def slice_dataset(dataset, num_rows):
+    # Convert the dataset to a pandas DataFrame
+    df = pd.DataFrame(dataset)
+
+    # Slice the first 100 rows
+    subset_df = df.head(num_rows)
+
+    # Convert the subset DataFrame back to a datasets Dataset
+    subset_dataset = Dataset.from_pandas(subset_df)
+
+    # Print information about the subset dataset
+    return subset_dataset
+
+
+training_data = slice_dataset(train_data_mapped, 30000)
+validation_data = slice_dataset(val_data_mapped, 5000)
 
 # we set our lora config to be the same as qlora
 lora_config = LoraConfig(
