@@ -85,9 +85,6 @@ lora_config = LoraConfig(
     task_type="CAUSAL_LM"
 )
 
-phi2.config.use_cache = False
-phi2.config.pretraining_tp = 1
-
 """### Training Args"""
 
 
