@@ -19,11 +19,12 @@ phi2 = AutoModelForCausalLM.from_pretrained(
     torch_dtype="auto",
     device_map="auto",
     trust_remote_code=True,
+    use_cache=False
     # revision='834565c23f9b28b96ccbeabe614dd906b6db551a'
 )
 
-for param in phi2.parameters():
-    param.requires_grad = True
+# for param in phi2.parameters():
+#     param.requires_grad = True
 
 tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True)
 tokenizer.pad_token = tokenizer.eos_token
