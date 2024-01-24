@@ -25,8 +25,8 @@ phi2 = AutoModelForCausalLM.from_pretrained(
     # revision='834565c23f9b28b96ccbeabe614dd906b6db551a'
 )
 
-for param in phi2.parameters():
-    param.requires_grad = True
+# for param in phi2.parameters():
+#     param.requires_grad = True
 
 tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True)
 tokenizer.pad_token = tokenizer.eos_token
@@ -35,7 +35,7 @@ tokenizer.padding_side = "right"
 phi2.config.pad_token_id = tokenizer.eos_token_id
 
 
-dataset = "squad_v2"
+dataset = "squad"
 
 data = load_dataset(dataset, split="train")
 data = data.shuffle(seed=42)
@@ -96,8 +96,8 @@ def slice_dataset(dataset, num_rows):
     return subset_dataset
 
 
-training_data = slice_dataset(train_data_mapped, 10000)
-validation_data = slice_dataset(val_data_mapped, 2000)
+training_data = slice_dataset(train_data_mapped, 20000)
+validation_data = slice_dataset(val_data_mapped, 4000)
 
 # we set our lora config to be the same as qlora
 lora_config = LoraConfig(
@@ -125,7 +125,7 @@ training_args = TrainingArguments(
     save_steps=1000,
     logging_steps=500,
     learning_rate=3e-6,
-    weight_decay=0.01,
+    weight_decay=0.005,
     # basically just train for 5 epochs, you should train for longer
     max_steps=int(len(training_data) * 1),
     warmup_steps=150,
@@ -146,7 +146,7 @@ trainer = SFTTrainer(
     dataset_text_field='text',
     train_dataset=training_data,
     eval_dataset=validation_data,
-    max_seq_length=4096,
+    max_seq_length=2096,
     dataset_num_proc=os.cpu_count(),
 )
 
@@ -174,7 +174,7 @@ tokenizer.save_pretrained("merged_model")
 # Login to the Hugging Face Hub
 login(token="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")
 
-hf_model_repo = 'mmpc/phi-2-squad2'
+hf_model_repo = 'mmpc/phi-2-squad'
 # push merged model to the hub
 merged_model.push_to_hub(hf_model_repo)
 tokenizer.push_to_hub(hf_model_repo)
