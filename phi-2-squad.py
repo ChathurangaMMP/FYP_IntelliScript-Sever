@@ -38,12 +38,12 @@ phi2.config.pad_token_id = tokenizer.eos_token_id
 dataset = "squad"
 
 data = load_dataset(dataset, split="train")
-data = data.shuffle(seed=42)
+data = data.shuffle()
 
 vdata = load_dataset(dataset, split="validation")
-val_data = vdata.shuffle(seed=42)
+val_data = vdata.shuffle()
 
-train_test_data = data.train_test_split(test_size=0.1, seed=42)
+train_test_data = data.train_test_split(test_size=0.1)
 train_data = train_test_data['train']
 test_data = train_test_data['test']
 
@@ -96,8 +96,8 @@ def slice_dataset(dataset, num_rows):
     return subset_dataset
 
 
-training_data = slice_dataset(train_data_mapped, 20000)
-validation_data = slice_dataset(val_data_mapped, 4000)
+training_data = slice_dataset(train_data_mapped, 10000)
+validation_data = slice_dataset(val_data_mapped, 2000)
 
 # we set our lora config to be the same as qlora
 lora_config = LoraConfig(
