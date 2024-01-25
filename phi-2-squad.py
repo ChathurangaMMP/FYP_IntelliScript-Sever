@@ -212,7 +212,6 @@ training_args = TrainingArguments(
     gradient_checkpointing=True,
     # max_grad_norm=0.3,  # from the paper
     lr_scheduler_type="reduce_lr_on_plateau",
-    label_names=["text"],
     load_best_model_at_end=True
 )
 
