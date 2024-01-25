@@ -158,17 +158,17 @@ training_args = TrainingArguments(
     log_level="debug",
     optim="paged_adamw_8bit",
     save_steps=1000,
-    logging_steps=500,
-    learning_rate=5e-5,
+    logging_steps=200,
+    learning_rate=5e-6,
     weight_decay=0.01,
     # basically just train for 5 epochs, you should train for longer
     max_steps=int(len(training_data) * 1),
     warmup_steps=150,
-    # bf16=True,
+    fp16=True,
     # tf32=True,
     gradient_checkpointing=True,
     # max_grad_norm=0.3,  # from the paper
-    lr_scheduler_type="reduce_lr_on_plateau",
+    # lr_scheduler_type="reduce_lr_on_plateau",
 )
 
 """### Train"""
