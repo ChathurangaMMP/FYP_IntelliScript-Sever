@@ -1,10 +1,12 @@
-from datasets import Dataset
+from peft import prepare_model_for_kbit_training
+from torch.distributed.fsdp.fully_sharded_data_parallel import FullOptimStateDictConfig, FullStateDictConfig
+from accelerate import FullyShardedDataParallelPlugin, Accelerator
+from datasets import load_dataset, concatenate_datasets, Dataset
 import pandas as pd
 from huggingface_hub import login
 from peft import AutoPeftModelForCausalLM
-from transformers import TrainingArguments
-from peft import LoraConfig
-from datasets import load_dataset
+from transformers import TrainingArguments, Trainer
+from peft import LoraConfig, get_peft_model
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from trl import SFTTrainer
 import torch
@@ -35,17 +37,42 @@ tokenizer.padding_side = "right"
 phi2.config.pad_token_id = tokenizer.eos_token_id
 
 
-dataset = "squad"
+dataset = "squad_v2"
 
 data = load_dataset(dataset, split="train")
-data = data.shuffle()
+data = data.shuffle(seed=42)
 
 vdata = load_dataset(dataset, split="validation")
-val_data = vdata.shuffle()
+val_data = vdata.shuffle(seed=42)
 
-train_test_data = data.train_test_split(test_size=0.1)
-train_data = train_test_data['train']
-test_data = train_test_data['test']
+train_test_data_1 = data.train_test_split(test_size=0.2, seed=42)
+train_data = train_test_data_1['train']
+other_data = train_test_data_1['test']
+
+train_test_data_2 = other_data.train_test_split(test_size=0.5, seed=42)
+val_data_addon = train_test_data_2['train']
+test_data = train_test_data_2['test']
+
+val_data = concatenate_datasets([val_data, val_data_addon])
+
+
+def filter_dataset(dataset):
+    df = pd.DataFrame(dataset)
+
+    used_data = []
+    to_delete = []
+    for i in df.index:
+        # Check condition for deletion
+        if df.loc[i, 'context'] in used_data:
+            to_delete.append(i)
+        else:
+            used_data.append(df.loc[i, 'context'])
+
+    # Delete rows based on collected indices
+    df.drop(to_delete, inplace=True)
+
+    return Dataset.from_pandas(df)
+
 
 """### Define a function to test the similarity between responses"""
 
@@ -71,15 +98,19 @@ def paragraph_similarity(p1, p2):
 
 def generate_prompt_for_finetuning(data_point):
     # Samples with additional context info.
-    text = 'Instruction: Answer the following questions based on the given context.\n\n'
-    text += f'Context: {data_point["context"]}\n\n'
-    text += f'Question: {data_point["question"]}\n\n'
-    text += f'Answer: {data_point["answers"]}\n\n'
+    text = 'INSTRUCTION: Answer the following question based on the given context, providing a concise and fact-based response.\n\n'
+    text += 'CONSTRAINTS: Do not generate additional text beyond the answer.\n\n'
+    text += f'CONTEXT: {data_point["context"]}\n\n'
+    text += f'QUESTION: {data_point["question"]}\n\n'
+    text += f'ANSWER: {data_point["answers"]}\n\n'
     return {'text': text}
 
 
-train_data_mapped = train_data.map(generate_prompt_for_finetuning)
-val_data_mapped = val_data.map(generate_prompt_for_finetuning)
+train_data_filtered = filter_dataset(train_data)
+val_data_filtered = filter_dataset(val_data)
+
+train_data_mapped = train_data_filtered.map(generate_prompt_for_finetuning)
+val_data_mapped = val_data_filtered.map(generate_prompt_for_finetuning)
 
 
 def slice_dataset(dataset, num_rows):
@@ -99,16 +130,45 @@ def slice_dataset(dataset, num_rows):
 training_data = slice_dataset(train_data_mapped, 10000)
 validation_data = slice_dataset(val_data_mapped, 2000)
 
+
+# Accelerate training models on larger batch sizes, we can use a fully sharded data parallel model.
+
+fsdp_plugin = FullyShardedDataParallelPlugin(
+    state_dict_config=FullStateDictConfig(
+        offload_to_cpu=True, rank0_only=False),
+    optim_state_dict_config=FullOptimStateDictConfig(
+        offload_to_cpu=True, rank0_only=False),
+)
+
+accelerator = Accelerator(fsdp_plugin=fsdp_plugin)
+
+
+# gradient checkpointing to save memory
+phi2.gradient_checkpointing_enable()
+
+# Freeze base model layers and cast layernorm in fp32
+phi2 = prepare_model_for_kbit_training(phi2, use_gradient_checkpointing=True)
+
 # we set our lora config to be the same as qlora
 lora_config = LoraConfig(
     r=16,
     lora_alpha=32,
-    lora_dropout=0.05,
+    lora_dropout=0.1,
     #  The modules to apply the LoRA update matrices.
-    target_modules=["Wqkv", "fc1", "fc2"],
+    target_modules=[
+        'q_proj',
+        'k_proj',
+        'v_proj',
+        'dense',
+        'fc1',
+        'fc2',
+    ],
     task_type="CAUSAL_LM"
 )
 
+lora_model = get_peft_model(phi2, lora_config)
+
+lora_model = accelerator.prepare_model(lora_model)
 """### Training Args"""
 
 
@@ -124,59 +184,77 @@ training_args = TrainingArguments(
     optim="paged_adamw_8bit",
     save_steps=1000,
     logging_steps=500,
-    learning_rate=3e-6,
-    weight_decay=0.005,
+    learning_rate=5e-5,
+    weight_decay=0.01,
     # basically just train for 5 epochs, you should train for longer
     max_steps=int(len(training_data) * 1),
     warmup_steps=150,
     # bf16=True,
     # tf32=True,
     gradient_checkpointing=True,
-    max_grad_norm=0.3,  # from the paper
+    # max_grad_norm=0.3,  # from the paper
     lr_scheduler_type="reduce_lr_on_plateau",
+    label_names=["text"],
+    load_best_model_at_end=True
 )
 
 """### Train"""
 
-trainer = SFTTrainer(
-    model=phi2,
-    args=training_args,
-    peft_config=lora_config,
-    tokenizer=tokenizer,
-    dataset_text_field='text',
+# trainer = SFTTrainer(
+#     model=phi2,
+#     args=training_args,
+#     peft_config=lora_config,
+#     tokenizer=tokenizer,
+#     dataset_text_field='text',
+#     train_dataset=training_data,
+#     eval_dataset=validation_data,
+#     max_seq_length=2096,
+#     dataset_num_proc=os.cpu_count(),
+# )
+
+trainer = Trainer(
+    model=lora_model,
     train_dataset=training_data,
     eval_dataset=validation_data,
-    max_seq_length=2096,
-    dataset_num_proc=os.cpu_count(),
+    args=training_args,
+    tokenizer=tokenizer,
 )
 
 trainer.train()
-
-trainer.save_model()
-
-
-instruction_tuned_model = AutoPeftModelForCausalLM.from_pretrained(
-    training_args.output_dir,
-    torch_dtype=torch.float16,
-    # torch_dtype='auto',
-    trust_remote_code=True,
-    device_map='auto',
-    offload_folder="offload/"
-)
-
-merged_model = instruction_tuned_model.merge_and_unload()
-
-# Save the merged model
-merged_model.save_pretrained("merged_model", safe_serialization=True)
-tokenizer.save_pretrained("merged_model")
-
 
 # Login to the Hugging Face Hub
 login(token="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")
 
 hf_model_repo = 'mmpc/phi-2-squad'
-# push merged model to the hub
-merged_model.push_to_hub(hf_model_repo)
+
+lora_model.push_to_hub(hf_model_repo)
 tokenizer.push_to_hub(hf_model_repo)
+
+# trainer.save_model()
+
+
+# instruction_tuned_model = AutoPeftModelForCausalLM.from_pretrained(
+#     training_args.output_dir,
+#     torch_dtype=torch.float16,
+#     # torch_dtype='auto',
+#     trust_remote_code=True,
+#     device_map='auto',
+#     offload_folder="offload/"
+# )
+
+# merged_model = instruction_tuned_model.merge_and_unload()
+
+# # Save the merged model
+# merged_model.save_pretrained("merged_model", safe_serialization=True)
+# tokenizer.save_pretrained("merged_model")
+
+
+# # Login to the Hugging Face Hub
+# login(token="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")
+
+# hf_model_repo = 'mmpc/phi-2-squad'
+# # push merged model to the hub
+# merged_model.push_to_hub(hf_model_repo)
+# tokenizer.push_to_hub(hf_model_repo)
 
 print("New model is uploaded.")
