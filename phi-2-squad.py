@@ -103,14 +103,32 @@ def generate_prompt_for_finetuning(data_point):
     text += f'CONTEXT: {data_point["context"]}\n\n'
     text += f'QUESTION: {data_point["question"]}\n\n'
     text += f'ANSWER: {data_point["answers"]}\n\n'
-    return {'text': text}
+
+    # Tokenize the prompt
+    encoded = tokenizer(
+        text,
+        return_tensors="np",
+        padding="max_length",
+        truncation=True,
+        # Very critical to keep max_length at 1024.
+        # Anything more will lead to OOM on T4
+        max_length=2048,
+    )
+
+    encoded["labels"] = encoded["input_ids"]
+    return encoded
 
 
 train_data_filtered = filter_dataset(train_data)
 val_data_filtered = filter_dataset(val_data)
 
-train_data_mapped = train_data_filtered.map(generate_prompt_for_finetuning)
-val_data_mapped = val_data_filtered.map(generate_prompt_for_finetuning)
+columns_to_remove = ['id', 'title', 'context',
+                     'question', 'answers', '__index_level_0__']
+
+train_data_mapped = train_data_filtered.map(
+    generate_prompt_for_finetuning, remove_columns=columns_to_remove)
+val_data_mapped = val_data_filtered.map(
+    generate_prompt_for_finetuning, remove_columns=columns_to_remove)
 
 
 def slice_dataset(dataset, num_rows):
