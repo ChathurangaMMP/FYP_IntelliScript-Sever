@@ -234,7 +234,6 @@ trainer = Trainer(
     train_dataset=training_data,
     eval_dataset=validation_data,
     args=training_args,
-    tokenizer=tokenizer,
 )
 
 trainer.train()
