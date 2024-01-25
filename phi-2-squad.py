@@ -1,12 +1,9 @@
-from peft import prepare_model_for_kbit_training
-from torch.distributed.fsdp.fully_sharded_data_parallel import FullOptimStateDictConfig, FullStateDictConfig
-from accelerate import FullyShardedDataParallelPlugin, Accelerator
 from datasets import load_dataset, concatenate_datasets, Dataset
 import pandas as pd
 from huggingface_hub import login
 from peft import AutoPeftModelForCausalLM
-from transformers import TrainingArguments, Trainer
-from peft import LoraConfig, get_peft_model
+from transformers import TrainingArguments
+from peft import LoraConfig
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from trl import SFTTrainer
 import torch
@@ -103,32 +100,14 @@ def generate_prompt_for_finetuning(data_point):
     text += f'CONTEXT: {data_point["context"]}\n\n'
     text += f'QUESTION: {data_point["question"]}\n\n'
     text += f'ANSWER: {data_point["answers"]}\n\n'
-
-    # Tokenize the prompt
-    encoded = tokenizer(
-        text,
-        return_tensors="np",
-        padding="max_length",
-        truncation=True,
-        # Very critical to keep max_length at 1024.
-        # Anything more will lead to OOM on T4
-        max_length=2048,
-    )
-
-    encoded["labels"] = encoded["input_ids"]
-    return encoded
+    return {'text': text}
 
 
 train_data_filtered = filter_dataset(train_data)
 val_data_filtered = filter_dataset(val_data)
 
-columns_to_remove = ['id', 'title', 'context',
-                     'question', 'answers', '__index_level_0__']
-
-train_data_mapped = train_data_filtered.map(
-    generate_prompt_for_finetuning, remove_columns=columns_to_remove)
-val_data_mapped = val_data_filtered.map(
-    generate_prompt_for_finetuning, remove_columns=columns_to_remove)
+train_data_mapped = train_data_filtered.map(generate_prompt_for_finetuning)
+val_data_mapped = val_data_filtered.map(generate_prompt_for_finetuning)
 
 
 def slice_dataset(dataset, num_rows):
@@ -148,25 +127,6 @@ def slice_dataset(dataset, num_rows):
 training_data = slice_dataset(train_data_mapped, 10000)
 validation_data = slice_dataset(val_data_mapped, 2000)
 
-
-# Accelerate training models on larger batch sizes, we can use a fully sharded data parallel model.
-
-fsdp_plugin = FullyShardedDataParallelPlugin(
-    state_dict_config=FullStateDictConfig(
-        offload_to_cpu=True, rank0_only=False),
-    optim_state_dict_config=FullOptimStateDictConfig(
-        offload_to_cpu=True, rank0_only=False),
-)
-
-accelerator = Accelerator(fsdp_plugin=fsdp_plugin)
-
-
-# gradient checkpointing to save memory
-phi2.gradient_checkpointing_enable()
-
-# Freeze base model layers and cast layernorm in fp32
-phi2 = prepare_model_for_kbit_training(phi2, use_gradient_checkpointing=True)
-
 # we set our lora config to be the same as qlora
 lora_config = LoraConfig(
     r=16,
@@ -184,9 +144,6 @@ lora_config = LoraConfig(
     task_type="CAUSAL_LM"
 )
 
-lora_model = get_peft_model(phi2, lora_config)
-
-lora_model = accelerator.prepare_model(lora_model)
 """### Training Args"""
 
 
@@ -212,65 +169,49 @@ training_args = TrainingArguments(
     gradient_checkpointing=True,
     # max_grad_norm=0.3,  # from the paper
     lr_scheduler_type="reduce_lr_on_plateau",
-    load_best_model_at_end=True
 )
 
 """### Train"""
 
-# trainer = SFTTrainer(
-#     model=phi2,
-#     args=training_args,
-#     peft_config=lora_config,
-#     tokenizer=tokenizer,
-#     dataset_text_field='text',
-#     train_dataset=training_data,
-#     eval_dataset=validation_data,
-#     max_seq_length=2096,
-#     dataset_num_proc=os.cpu_count(),
-# )
-
-trainer = Trainer(
-    model=lora_model,
+trainer = SFTTrainer(
+    model=phi2,
+    args=training_args,
+    peft_config=lora_config,
+    tokenizer=tokenizer,
+    dataset_text_field='text',
     train_dataset=training_data,
     eval_dataset=validation_data,
-    args=training_args,
+    max_seq_length=2096,
+    dataset_num_proc=os.cpu_count(),
 )
 
 trainer.train()
+
+trainer.save_model()
+
+
+instruction_tuned_model = AutoPeftModelForCausalLM.from_pretrained(
+    training_args.output_dir,
+    torch_dtype=torch.float16,
+    # torch_dtype='auto',
+    trust_remote_code=True,
+    device_map='auto',
+    offload_folder="offload/"
+)
+
+merged_model = instruction_tuned_model.merge_and_unload()
+
+# Save the merged model
+merged_model.save_pretrained("merged_model", safe_serialization=True)
+tokenizer.save_pretrained("merged_model")
+
 
 # Login to the Hugging Face Hub
 login(token="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")
 
 hf_model_repo = 'mmpc/phi-2-squad'
-
-lora_model.push_to_hub(hf_model_repo)
+# push merged model to the hub
+merged_model.push_to_hub(hf_model_repo)
 tokenizer.push_to_hub(hf_model_repo)
-
-# trainer.save_model()
-
-
-# instruction_tuned_model = AutoPeftModelForCausalLM.from_pretrained(
-#     training_args.output_dir,
-#     torch_dtype=torch.float16,
-#     # torch_dtype='auto',
-#     trust_remote_code=True,
-#     device_map='auto',
-#     offload_folder="offload/"
-# )
-
-# merged_model = instruction_tuned_model.merge_and_unload()
-
-# # Save the merged model
-# merged_model.save_pretrained("merged_model", safe_serialization=True)
-# tokenizer.save_pretrained("merged_model")
-
-
-# # Login to the Hugging Face Hub
-# login(token="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")
-
-# hf_model_repo = 'mmpc/phi-2-squad'
-# # push merged model to the hub
-# merged_model.push_to_hub(hf_model_repo)
-# tokenizer.push_to_hub(hf_model_repo)
 
 print("New model is uploaded.")
