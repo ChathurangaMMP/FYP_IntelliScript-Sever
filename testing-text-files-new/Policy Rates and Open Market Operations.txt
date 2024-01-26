@@ -1,0 +1,39 @@
+ 
+Monetary Policy Instruments and Implementation
+The Central Bank possesses a wide range of tools to be used as instruments of monetary policy. At present, the monetary policy places greater rel
+market based policy instruments. As a consequence, the main monetary policy instruments currently used are policy interest rates, Open Market Op
+(OMO) and the Statutory Reserve Requirement (SRR) on commercial bank deposit liabilities. The first step in the monetary policy implementation is 
+forecasting. (Click here for the details)
+ 
+Policy Interest Rates and Open Market Operations (OMO)
+At present, the Central Bank conducts its monetary policy under a system of active OMOs. The key elements of the system are (i) an interest rate 
+formed by the main policy rates of the Bank i.e. Standing Deposit Facility Rate (SDFR) and Standing Lending Facility Rate (SLFR), and (ii) Open
+Operations. 
+1. The main instruments to achieve the intended inflation path are the SDFR (formerly the repurchase rate) and the SLFR (formerly the reverse repurcha
+of the Central Bank which form the lower and upper bounds for the overnight interest rates in money markets. These rates, which are the Bank's main
+signalling mechanism on its monetary policy stance, are reviewed on a regular basis, usually eight times per year, and revised if necessary.
+2. Standing facilities are available for those participating financial institutions which were unable to obtain their liquidity requirements at the daily auctio
+is, even after an auction, if a participant has excess money it could deposit such funds under the standing deposit facility. Similarly, if a participant n
+liquidity to cover a shortage, it could borrow funds on a reverse repurchase basis under the standing lending facility. Accordingly, these facilities help
+wide fluctuations in overnight interest rates.
+3. OMOs are conducted either to absorb liquidity if there is excess liquidity, or to inject liquidity if there is a shortage of liquidity, thereby maintaining sta
+overnight interest rates. OMOs are conducted through auctions to buy /sell government securities on a permanent or a temporary basis (Click here fo
+detailed description of the process of conducting OMO). The auction is on a multiple bid, multiple price system. Participants in the money market cou
+make up to three bids at each short-term auction and up to six bids at each long-term auction and the successful bidders would receive their request
+rates quoted in the relevant bid.
+ 
+Statutory Reserve Requirement (SRR)
+The Statutory Reserve Requirement (SRR) is the proportion of deposit liabilities that the Licensed Commercial Banks (LCBs) are required to keep as
+deposit with the Central Bank. Under the Monetary Law Act (MLA), LCBs are required to maintain reserves with the Central Bank at rates determined by t
+At present, demand, time and savings deposits of LCBs denominated in rupee terms are subject to the SRR.
+The SRR has been widely used to influence the money supply in the past. However, the reliance on SRR as a regular monetary management measure h
+gradually reduced with a view to enhancing market orientation of monetary policy and also reducing the implicit cost of funds which the SRR would e
+LCBs. Therefore, at present, the Central Bank uses the SRR to address persistent liquidity issues in the market (Click here for details on how SRR is comp
+ 
+Other Policy Instruments
+In addition, depending on the need and circumstances in the economy, the Central Bank can use quantitative restrictions on credit, ceilings on interest rat
+suasion as well as communication and forward guidance for the purpose of monetary management.
+Home » Monetary Policy » Instruments and Implementation » Policy Interest Rates and Open Market Operations
+English | �ංහ
+
+
