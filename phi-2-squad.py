@@ -133,8 +133,12 @@ lora_config = LoraConfig(
     lora_dropout=0.1,
     bias="none",
     #  The modules to apply the LoRA update matrices.
-    target_modules=['Wqkv', 'out_proj'],
-    modules_to_save=["lm_head", "embed_tokens"],
+    target_modules=[
+        "q_proj",
+        "k_proj",
+        "v_proj",
+        "dense"
+    ],
     task_type="CAUSAL_LM"
 )
 
