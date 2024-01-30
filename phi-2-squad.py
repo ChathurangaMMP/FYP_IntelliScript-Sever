@@ -96,7 +96,6 @@ def paragraph_similarity(p1, p2):
 def generate_prompt_for_finetuning(data_point):
     # Samples with additional context info.
     text = 'INSTRUCTION: Answer the following question based on the given context, providing a concise and fact-based response.\n\n'
-    text += 'CONSTRAINTS: Do not generate additional text beyond the answer.\n\n'
     text += f'CONTEXT: {data_point["context"]}\n\n'
     text += f'QUESTION: {data_point["question"]}\n\n'
     text += f'ANSWER: {data_point["answers"]}\n\n'
@@ -129,18 +128,13 @@ validation_data = slice_dataset(val_data_mapped, 2000)
 
 # we set our lora config to be the same as qlora
 lora_config = LoraConfig(
-    r=16,
+    r=32,
     lora_alpha=32,
     lora_dropout=0.1,
+    bias="none",
     #  The modules to apply the LoRA update matrices.
-    target_modules=[
-        'q_proj',
-        'k_proj',
-        'v_proj',
-        'dense',
-        'fc1',
-        'fc2',
-    ],
+    target_modules=['Wqkv', 'out_proj'],
+    modules_to_save=["lm_head", "embed_tokens"],
     task_type="CAUSAL_LM"
 )
 
@@ -209,7 +203,7 @@ tokenizer.save_pretrained("merged_model")
 # Login to the Hugging Face Hub
 login(token="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")
 
-hf_model_repo = 'mmpc/phi-2-squad'
+hf_model_repo = 'mmpc/phi-2-squad2-low'
 # push merged model to the hub
 merged_model.push_to_hub(hf_model_repo)
 tokenizer.push_to_hub(hf_model_repo)
