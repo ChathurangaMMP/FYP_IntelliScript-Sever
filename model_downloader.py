@@ -1,6 +1,7 @@
 from huggingface_hub import snapshot_download
 
-snapshot_download(repo_id="microsoft/phi-2", local_dir="microsoft-phi-2")
+snapshot_download(repo_id="NousResearch/Llama-2-7b-chat-hf",
+                  local_dir="Llama-2-7b-chat-hf")
 
 # # Load model directly
 # from huggingface_hub import hf_hub_download
