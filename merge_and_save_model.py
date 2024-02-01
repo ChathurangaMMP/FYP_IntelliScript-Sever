@@ -5,7 +5,7 @@ import torch
 
 """### Load model"""
 
-model_name = "Llama-2-7b-chat-hf"
+model_name = "microsoft-phi-2"
 
 phi2 = AutoModelForCausalLM.from_pretrained(
     model_name,
@@ -42,7 +42,7 @@ tokenizer.save_pretrained("merged_model")
 # Login to the Hugging Face Hub
 login(token="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")
 
-hf_model_repo = 'mmpc/llama-2-7b-chat-hf-squad2-qg'
+hf_model_repo = 'mmpc/microsoft-phi-2-squad2-qg'
 # push merged model to the hub
 merged_model.push_to_hub(hf_model_repo)
 tokenizer.push_to_hub(hf_model_repo)
