@@ -1,4 +1,3 @@
-from flask import Flask, request, jsonify
 import chainlit as cl
 from transformers import pipeline
 import numpy as np
@@ -199,17 +198,3 @@ def response_generation(query):
         print(filtered_text[i][0].metadata)
     else:
         print("Apologies, but it seems that I couldn't find a specific solution or answer for your query. Feel free to ask another question, and I'll do my best to assist you!")
-
-
-app = Flask(__name__)
-
-
-@app.route("/generate_text", methods=["POST"])
-def generate_text():
-    prompt = request.json["prompt"]
-    response = response_generation(prompt)
-    return jsonify({"response": response})
-
-
-if __name__ == "__main__":
-    app.run(port=5000)  # Accessible from laptops
