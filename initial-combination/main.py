@@ -13,7 +13,7 @@ from langchain.embeddings import HuggingFaceBgeEmbeddings
 import pandas as pd
 
 # DATA_PATH = "/kaggle/working/FYP_IntelliScript-Sever/scraped-data"
-DB_FAISS_PATH = "vectorstores/"
+DB_FAISS_PATH = "vectorstore/"
 
 # Load the summarization model and tokenizer
 model = T5ForConditionalGeneration.from_pretrained("t5-base")
