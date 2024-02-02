@@ -1,7 +1,7 @@
 from huggingface_hub import snapshot_download
 
-snapshot_download(repo_id="NousResearch/Llama-2-7b-chat-hf",
-                  local_dir="Llama-2-7b-chat-hf")
+snapshot_download(repo_id="NousResearch/Llama-2-13b-chat-hf",
+                  local_dir="Llama-2-13b-chat-hf")
 
 # # Load model directly
 # from huggingface_hub import hf_hub_download

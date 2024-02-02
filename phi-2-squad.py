@@ -205,7 +205,7 @@ tokenizer.save_pretrained("merged_model")
 
 
 # Login to the Hugging Face Hub
-login(token="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")
+login(token="")
 
 hf_model_repo = 'mmpc/phi-2-squad2-low'
 # push merged model to the hub
