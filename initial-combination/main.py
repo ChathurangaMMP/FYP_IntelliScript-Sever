@@ -114,7 +114,7 @@ def filter_data_from_kb(knowledgeBase, query, max_retriew=10):
     return docs
 
 
-model_name = "NousResearch/Llama-2-7b-chat-hf"
+model_name = "Llama-2-7b-chat-hf"
 
 llama2 = AutoModelForCausalLM.from_pretrained(
     model_name,
