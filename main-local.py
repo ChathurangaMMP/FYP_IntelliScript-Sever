@@ -31,7 +31,7 @@ async def main(message):
         stream_final_answer=True, answer_prefix_tokens=["FINAL", "ANSWER"])
     cb.answer_reached = True
     res = requests.post(
-        "http://192.248.10.43:5000/generate_text", json={"prompt": message.content})
+        "https://b2a2372pt4l-496ff2e9c6d22116-5000-colab.googleusercontent.com/generate_text", json={"prompt": message.content})
     answer = res
     # sources = res["source_documents"]
 
