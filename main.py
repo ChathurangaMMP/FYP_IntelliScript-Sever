@@ -198,30 +198,3 @@ def response_generation(query):
         print(filtered_text[i][0].metadata)
     else:
         print("Apologies, but it seems that I couldn't find a specific solution or answer for your query. Feel free to ask another question, and I'll do my best to assist you!")
-
-
-# Chainlit
-@cl.on_chat_start
-async def start():
-    msg = cl.Message(content="Starting the bot.....")
-    await msg.send()
-    msg.content = "Hi, Welcome to the IntelliScript Bot. What is your query?"
-    await msg.update()
-
-
-@cl.on_message
-async def main(message):
-    chain = cl.user_session.get("chain")
-    cb = cl.AsyncLangchainCallbackHandler(
-        stream_final_answer=True, answer_prefix_tokens=["FINAL", "ANSWER"])
-    cb.answer_reached = True
-    res = response_generation(message)
-    answer = res
-    # sources = res["source_documents"]
-
-    # if sources:
-    #     answer += f"\nSources:" + str(sources)
-    # else:
-    #     answer += f"\nNo Sources Found"
-
-    await cl.Message(content=answer).send()
