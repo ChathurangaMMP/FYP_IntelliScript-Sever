@@ -190,7 +190,7 @@ def response_generation(question):
 
 # model_name = "NousResearch/Llama-2-7b-chat-hf"
 model_name = '../Llama-2-7b-chat-hf'
-DB_FAISS_PATH = "vectorstore/cbsl-short-textfile-vectorstore"
+DB_FAISS_PATH = "vectorstore/cbsl-short-table-textfile-vectorstore"
 
 knowledgeBase = load_knowledgebase(DB_FAISS_PATH)
 
