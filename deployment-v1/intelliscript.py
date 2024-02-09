@@ -113,7 +113,9 @@ def generate_qa_prompt(context, question):
       Look for a exact answer in the context. Should generate a complete answer. The answer should look natural.
       If the question has an exact answer, do not give EXPLANATION: text. If query asks for an explanation then give it.
 
-      If you can not find the answer from the context, say "No Answer".'''
+      If you can not find the answer from the context, say "No Answer".
+      
+      After the answer extraction, build a detailed answer according to the question.'''
 
     # text += '''Consider below examples to understand the task.
 
