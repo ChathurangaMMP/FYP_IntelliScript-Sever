@@ -170,7 +170,7 @@ def get_tokens_count(prompt):
 def response_generation(question):
     filtered_text = filter_data_from_kb(knowledgeBase, question, 10)
     answers = []
-    for i in range(5):
+    for i in range(10):
         prompt = generate_qa_prompt(
             filtered_text[i][0].page_content, question)['text']
         output_response = llama2_QA_pipeline(prompt)[0]['generated_text']
