@@ -115,7 +115,7 @@ def generate_qa_prompt(context, question):
 
       If you can not find the answer from the context, say "No Answer".
       
-      After the answer extraction, build a detailed answer according to the question.'''
+      After the answer extraction, build a detailed answer according to the question and give it as the output.'''
 
     # text += '''Consider below examples to understand the task.
 
