@@ -8,7 +8,6 @@ from langchain.vectorstores import FAISS
 from langchain.embeddings import HuggingFaceBgeEmbeddings
 import pandas as pd
 
-
 # Load the summarization model and tokenizer
 # model = T5ForConditionalGeneration.from_pretrained("t5-base")
 # tokenizer = T5Tokenizer.from_pretrained("t5-base")
@@ -110,8 +109,11 @@ def load_llm(model_name):
 
 
 def generate_qa_prompt(context, question):
-    text = 'INSTRUCTION: Answer the following question based on the given context, providing a concise and fact-based response. Look for a exact answer in the context. Should generate a complete answer.\
-      If you can not find the answer from the context, say "No Answer".'
+    text = '''INSTRUCTION: Answer the following question based on the given context, providing a concise and fact-based response. 
+      Look for a exact answer in the context. Should generate a complete answer. The answer should look natural.
+      If the question has an exact answer, do not give EXPLANATION: text. If query asks for an explanation then give it.
+
+      If you can not find the answer from the context, say "No Answer".'''
 
     # text += '''Consider below examples to understand the task.
 
@@ -130,9 +132,17 @@ def generate_qa_prompt(context, question):
     return {'text': text}
 
 
+def generate_base_qa_prompt(question):
+    text = '''INSTRUCTION: Answer the following question based on your knowledge'''
+
+    text += f"QUESTION: {question}\n\n"
+    text += "OUTPUT: "
+    return {'text': text}
+
+
 def create_inferencing_pipeline(llama2, tokenizer):
     question_generation_kwargs = {
-        "max_new_tokens": 200,
+        "max_new_tokens": 250,
         "temperature": 0.7,
         "do_sample": True,
         # "no_repeat_ngram_size":4,
@@ -163,13 +173,14 @@ def response_generation(question):
             filtered_text[i][0].page_content, question)['text']
         output_response = llama2_QA_pipeline(prompt)[0]['generated_text']
         output_text = output_response.split('\nOUTPUT:')[1]
+        output_text = output_text.split('EXPLANATION:')[0]
 
         if "no answer" not in output_text.lower():
             answers.append(output_text)
             break
 
     if answers:
-        return output_text
+        return output_text.strip()
         # print(filtered_text[i][0].metadata)
     else:
         return "Apologies, but it seems that I couldn't find a specific solution or answer for your query. Feel free to ask another question, and I'll do my best to assist you!"
