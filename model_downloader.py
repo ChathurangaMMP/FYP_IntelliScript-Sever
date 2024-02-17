@@ -1,4 +1,8 @@
 from huggingface_hub import snapshot_download
+# from huggingface_hub import hf_hub_download
+
+# hf_hub_download(repo_id="mmpc/CBSL-data",
+#                 local_dir="CBSL-data", repo_type="dataset")
 
 snapshot_download(repo_id="mmpc/CBSL-data",
                   local_dir="CBSL-data")

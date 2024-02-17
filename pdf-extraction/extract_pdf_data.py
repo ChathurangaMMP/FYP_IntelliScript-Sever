@@ -216,7 +216,54 @@ custom_config = r'-c preserve_interword_spaces=1 --oem 1 --psm 1 -l eng'
 
 xlsx_path = 'temp/tables.xlsx'
 
-input_file_path = 'tabular-pdfs/course-catalogue.pdf'
+source_dir = '../CBSL-data'
+output_dir = '../Extracted-text-CBSL-data'
+count = 0
+error_count = 0
+success_paths = []
 
-with open('test-data.txt', 'w', encoding='utf-8') as outfile:
-    outfile.write(extract_data(input_file_path))
+with open('errored-files.txt', 'r', encoding='utf-8') as error_file:
+    error_filenames = error_file.read().split('\n')
+
+for root, directories, files in os.walk(source_dir):
+    for directory in directories:
+        # Create corresponding directories in the output directory
+        output_subdir = os.path.join(
+            output_dir, os.path.relpath(root, source_dir), directory)
+        os.makedirs(output_subdir, exist_ok=True)
+
+    for file in files:
+        if file.endswith('.pdf'):
+            try:
+                input_file_path = os.path.join(root, file)
+
+                # Determine the output file path
+                output_file_path = os.path.join(
+                    output_dir, os.path.relpath(root, source_dir), file[:-3] + 'txt')
+
+                if not os.path.exists(output_file_path) and input_file_path not in error_filenames:
+                    text = extract_data(input_file_path)
+
+                    # Write the extracted text to the output file
+                    with open(output_file_path, 'w', encoding='utf-8') as write_file:
+                        write_file.write(text)
+
+                    count += 1
+                    print(
+                        f'{count} - {file} is extracted and saved to {output_file_path}')
+                    success_paths.append(input_file_path)
+
+            except Exception as e:
+                error_count += 1
+                print(f'{error_count}E - {e} - {input_file_path}')
+                with open('errored-files.txt', 'a', encoding='utf-8') as error_file_write:
+                    error_file_write.write(input_file_path+'\n')
+
+for root, dirs, files in os.walk(output_dir, topdown=False):
+    for dir in dirs:
+        folder_path = os.path.join(root, dir)
+        if not os.listdir(folder_path):  # Check if folder is empty
+            os.rmdir(folder_path)
+            print(f"Deleted empty folder: {folder_path}")
+
+print(count)
