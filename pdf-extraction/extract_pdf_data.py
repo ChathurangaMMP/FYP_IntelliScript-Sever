@@ -4,7 +4,6 @@ import pytesseract
 from pdf2image import convert_from_path
 from img2table.document import PDF
 from img2table.ocr import TesseractOCR
-from img2table.document import Image
 from tabulate import tabulate
 import json
 import pandas as pd
@@ -79,7 +78,8 @@ def needs_ocr(pdf_path):
 def find_text(page_text, word):
     start_index = 0
     indexes = []
-    while True:
+    word_count = page_text.count(word)
+    for i in range(word_count):
         start_index = page_text.find(word, start_index)
         if start_index == -1:
             break
@@ -216,7 +216,7 @@ custom_config = r'-c preserve_interword_spaces=1 --oem 1 --psm 1 -l eng'
 
 xlsx_path = 'temp/tables.xlsx'
 
-input_file_path = 'tabular-pdfs/Trans Express Services Lanka - 2024-01-27T094602.446.pdf'
+input_file_path = 'tabular-pdfs/course-catalogue.pdf'
 
 with open('test-data.txt', 'w', encoding='utf-8') as outfile:
     outfile.write(extract_data(input_file_path))
