@@ -216,6 +216,6 @@ custom_config = r'-c preserve_interword_spaces=1 --oem 1 --psm 1 -l eng'
 
 xlsx_path = 'temp/tables.xlsx'
 
-input_file_path = 'pdf-extraction\\tabular-pdfs\course-catalogue.pdf'
+input_file_path = 'tabular-pdfs\course-catalogue.pdf'
 
 print(extract_data(input_file_path))
