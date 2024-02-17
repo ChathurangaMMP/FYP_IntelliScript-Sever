@@ -218,4 +218,5 @@ xlsx_path = 'temp/tables.xlsx'
 
 input_file_path = 'tabular-pdfs/Privacy_Policy_Statement.pdf'
 
-print(extract_data(input_file_path))
+with open('test-data.txt', 'w', encoding='utf-8') as outfile:
+    outfile.write(extract_data(input_file_path))
