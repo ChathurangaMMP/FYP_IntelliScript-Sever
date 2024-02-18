@@ -216,8 +216,8 @@ custom_config = r'-c preserve_interword_spaces=1 --oem 1 --psm 1 -l eng'
 
 xlsx_path = 'temp/tables.xlsx'
 
-source_dir = "../CBSL-data/'FINANCIAL SYSTEM'"
-output_dir = "../Extracted-text-CBSL-data/'FINANCIAL SYSTEM'"
+source_dir = "../CBSL-data/FINANCIAL SYSTEM"
+output_dir = "../Extracted-text-CBSL-data/FINANCIAL SYSTEM"
 count = 0
 error_count = 0
 success_paths = []
