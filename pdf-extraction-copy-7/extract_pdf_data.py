@@ -50,7 +50,7 @@ def table_extract(source):
     return source.extract_tables(ocr=ocr,
                                  implicit_rows=True,
                                  borderless_tables=True,
-                                 min_confidence=90)
+                                 min_confidence=50)
 
 
 def table_titles(tables_dict):
@@ -121,7 +121,7 @@ def extract_data(filepath):
                     ocr=ocr,
                     implicit_rows=True,
                     borderless_tables=True,
-                    min_confidence=90)
+                    min_confidence=50)
 
         extracted_tables = table_extract(pdf)
         titles = table_titles(extracted_tables)
@@ -129,8 +129,10 @@ def extract_data(filepath):
         tables = table_to_json_based_xlsx(xlsx_path, titles)
         text_all = ''
 
-        doc = convert_from_path(
-            filepath, 750, thread_count=10, grayscale=True, use_pdftocairo=True, size=3000)
+        # doc = convert_from_path(
+        #     filepath, 750, thread_count=10, grayscale=True, use_pdftocairo=True, size=3000)
+
+        doc = convert_from_path(filepath)
 
         for i in range(len(doc)):
             page = doc[i]
@@ -216,8 +218,8 @@ custom_config = r'-c preserve_interword_spaces=1 --oem 1 --psm 1 -l eng'
 
 xlsx_path = 'temp/tables.xlsx'
 
-source_dir = "../CBSL-data/More Services"
-output_dir = "../Extracted-text-CBSL-data/More Services"
+source_dir = "../CBSL-data/PRESS"
+output_dir = "../Extracted-text-CBSL-data/PRESS"
 count = 0
 error_count = 0
 success_paths = []
