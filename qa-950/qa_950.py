@@ -155,7 +155,7 @@ for root, directories, files in os.walk(folder_path):
                     temp_error_nodes += 1
                     with open(error_file_path, 'a') as error_file:
                         json_string_error = json.dumps(
-                            {'source': str(file_path[:-4]), 'id': node.id_, 'error': str(e), 'context': str(node.text), 'response': str(output_text_ts)})
+                            {'source': str(file_path[:-4]), 'id': node.id_, 'error': str(e), 'context': str(node.text), 'response': str(output_text_qa)})
                         error_file.write(json_string_error + "\n")
 
             with open(success_total_nodes_txt_path, 'a') as success_nodes_file:
