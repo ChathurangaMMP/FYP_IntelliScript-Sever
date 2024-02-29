@@ -100,6 +100,7 @@ def remove_tailed_text(response):
 
 
 llama2_QA_pipeline = define_pipeline()
+file_count = 0
 
 for root, directories, files in os.walk(folder_path):
     for file in files:
@@ -156,7 +157,8 @@ for root, directories, files in os.walk(folder_path):
                         error_file.write(json_string_error + "\n")
 
             with open(success_total_nodes_txt_path, 'a') as success_nodes_file:
-                node_message = f'{file_path}-t-{temp_node_count}-s-{temp_success_nodes}-e-{temp_error_nodes}'
+                file_count += 1
+                node_message = f'{file_count}-{file_path}-t-{temp_node_count}-s-{temp_success_nodes}-e-{temp_error_nodes}'
                 success_nodes_file.write(node_message)
                 print(node_message)
 
