@@ -103,64 +103,62 @@ llama2_QA_pipeline = define_pipeline()
 
 for root, directories, files in os.walk(folder_path):
     for file in files:
-        # try:
-        print('-------------------------------------------------------------------------------')
-        file_path = os.path.join(root, file)
+        try:
+            file_path = os.path.join(root, file)
 
-        file_reader = SimpleDirectoryReader(
-            input_files=[file_path], encoding='utf-8')
-        documents = file_reader.load_data()
+            file_reader = SimpleDirectoryReader(
+                input_files=[file_path], encoding='utf-8')
+            documents = file_reader.load_data()
 
-        node_parser = SentenceSplitter(chunk_size=chunk_s)
-        nodes = node_parser.get_nodes_from_documents(documents)
+            node_parser = SentenceSplitter(chunk_size=chunk_s)
+            nodes = node_parser.get_nodes_from_documents(documents)
 
-        # by default, the node ids are set to random uuids. To ensure same id's per run, we manually set them.
-        temp_node_count = 0
-        for idx, node in enumerate(nodes):
-            node.id_ = f"node_{node_count}"
-            node_count += 1
-            temp_node_count += 1
+            # by default, the node ids are set to random uuids. To ensure same id's per run, we manually set them.
+            temp_node_count = 0
+            for idx, node in enumerate(nodes):
+                node.id_ = f"node_{node_count}"
+                node_count += 1
+                temp_node_count += 1
 
-        temp_success_nodes = 0
-        temp_error_nodes = 0
-        for node in nodes:
-            try:
-                prompt_ts = generate_topic_summary_prompt(str(node.text))[
-                    'text']
-                output_response_ts = llama2_QA_pipeline(
-                    prompt_ts)[0]['generated_text']
-                output_text_ts = output_response_ts.split('\nOUTPUT:')[1]
-                print(remove_tailed_text(output_text_ts))
+            temp_success_nodes = 0
+            temp_error_nodes = 0
+            for node in nodes:
+                try:
+                    prompt_ts = generate_topic_summary_prompt(str(node.text))[
+                        'text']
+                    output_response_ts = llama2_QA_pipeline(
+                        prompt_ts)[0]['generated_text']
+                    output_text_ts = output_response_ts.split('\nOUTPUT:')[1]
 
-                json_ts = json.loads(remove_tailed_text(output_text_ts))
-                write_dict_ts = {
-                    'source': file_path[:-4], 'context': node.text, 'ts': json_ts}
+                    json_ts = json.loads(remove_tailed_text(output_text_ts))
+                    write_dict_ts = {
+                        'source': file_path[:-4], 'context': node.text, 'ts': json_ts}
 
-                # Open the file in append mode
-                with open(ts_file_path, "a") as json_file_ts:
-                    # Serialize the JSON data
-                    json_string_ts = json.dumps(write_dict_ts)
-                    json_file_ts.write(json_string_ts + "\n")
+                    # Open the file in append mode
+                    with open(ts_file_path, "a") as json_file_ts:
+                        # Serialize the JSON data
+                        json_string_ts = json.dumps(write_dict_ts)
+                        json_file_ts.write(json_string_ts + "\n")
 
-                with open(success_txt_path, 'a') as success_file:
-                    success_file.write(f'{node.id_}-{file_path}')
-                    print(f'{node.id_}-{file_path}')
+                    with open(success_txt_path, 'a') as success_file:
+                        success_file.write(f'{node.id_}-{file_path}')
+                        print(f'{node.id_}-{file_path}')
 
-                temp_success_nodes += 1
+                    temp_success_nodes += 1
 
-            except Exception as e:
-                print(
-                    f'Node error - {node.id_} - {os.path.join(root, file)} - {e}')
-                temp_error_nodes += 1
-                with open(error_file_path, 'a') as error_file:
-                    json_string_error = json.dumps(
-                        {'source': str(file_path[:-4]), 'id': node.id_, 'error': str(e), 'context': str(node.text), 'response': str(output_text_ts)})
-                    error_file.write(json_string_error + "\n")
+                except Exception as e:
+                    print(
+                        f'Node error - {node.id_} - {os.path.join(root, file)} - {e}')
+                    temp_error_nodes += 1
+                    with open(error_file_path, 'a') as error_file:
+                        json_string_error = json.dumps(
+                            {'source': str(file_path[:-4]), 'id': node.id_, 'error': str(e), 'context': str(node.text), 'response': str(output_text_ts)})
+                        error_file.write(json_string_error + "\n")
 
-        with open(success_total_nodes_txt_path, 'a') as success_nodes_file:
-            node_message = f'{file_path}-t-{temp_node_count}-s-{temp_success_nodes}-e-{temp_error_nodes}'
-            success_nodes_file.write(node_message)
-            print(node_message)
+            with open(success_total_nodes_txt_path, 'a') as success_nodes_file:
+                node_message = f'{file_path}-t-{temp_node_count}-s-{temp_success_nodes}-e-{temp_error_nodes}'
+                success_nodes_file.write(node_message)
+                print(node_message)
 
-        # except Exception as e:
-        #     print(f'Parse file error - {os.path.join(root, file)} - {e}')
+        except Exception as e:
+            print(f'Parse file error - {os.path.join(root, file)} - {e}')
