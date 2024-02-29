@@ -91,22 +91,8 @@ def generate_topic_summary_prompt(context):
 
 
 def remove_tailed_text(response):
-    i = 0
-    k = ''
-    for l in response[::-1]:
-        if l != ']' and l != '}':
-            i += 1
-        else:
-            if l == ']':
-                k = ']'
-            else:
-                k = '}]'
-            break
-
-    if i == 0:
-        return response
-    else:
-        return response[:i*(-1)]+k
+    i = response.rfind('}') + 1
+    return response[:i]+']'
 
 
 llama2_QA_pipeline = define_pipeline()
