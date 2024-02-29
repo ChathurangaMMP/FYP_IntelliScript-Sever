@@ -107,7 +107,10 @@ def remove_tailed_text(response):
             k = '}]'
             break
 
-    return response[:-i]+k
+    if i == 0:
+        return response
+    else:
+        return response[:i*(-1)]+k
 
 
 llama2_QA_pipeline = define_pipeline()
