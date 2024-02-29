@@ -67,6 +67,8 @@ def generate_label_data_prompt(context):
         - Give the OUTPUT in JSON format with each dictionary contains query and response. Do not generate any text after the JSON in OUTPUT.
         - Do not generate incomplete dictionaries for the output. Always give a complete JSON
 
+        EXAMPLE_OUTPUT:[{'query': , 'response': }, {'query': , 'response': }]
+
         '''
 
     text += f"CONTEXT: {context}\n\n"
@@ -81,6 +83,8 @@ def generate_topic_summary_prompt(context):
           - Only consider the given context.
           - Give the OUTPUT in JSON format with each dictionary contains topic and summary. Do not generate any text after the JSON in OUTPUT.
           - Do not generate incomplete dictionaries for the output. Always give a complete JSON
+
+          EXAMPLE_OUTPUT:[{'topic': , 'summary': }, {'topic': , 'summary': }]
           
           '''
 
@@ -150,7 +154,7 @@ for root, directories, files in os.walk(folder_path):
                 temp_error_nodes += 1
                 with open(error_file_path, 'a') as error_file:
                     json_string_error = json.dumps(
-                        {'source': file_path[:-4], 'id': node.id_, 'error': e, 'context': node.text, 'response': output_text_ts})
+                        {'source': str(file_path[:-4]), 'id': node.id_, 'error': str(e), 'context': str(node.text), 'response': str(output_text_ts)})
                     error_file.write(json_string_error + "\n")
 
         with open(success_total_nodes_txt_path, 'a') as success_nodes_file:
