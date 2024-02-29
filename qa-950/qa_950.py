@@ -7,14 +7,15 @@ import json
 import os
 
 node_count = 1
+
 folder_path = "../Extracted-text-CBSL-data/FINANCIAL SYSTEM"  # TO_CHANGE
 model_name = "../Llama-2-7b-chat-hf"  # TO_CHANGE
-chunk_s = 1024  # TO_CHANGE
+chunk_s = 950  # TO_CHANGE
 
-ts_file_path = f"ts-{chunk_s}.json"
-success_txt_path = f"success-files-ts-{chunk_s}.txt"
-success_total_nodes_txt_path = f"success-total-node-details-ts-{chunk_s}.txt"
-error_file_path = f"errors-ts-{chunk_s}.json"
+qa_file_path = f"qa-{chunk_s}.json"
+success_txt_path = f"success-files-qa-{chunk_s}.txt"
+success_total_nodes_txt_path = f"success-total-node-details-qa-{chunk_s}.txt"
+error_file_path = f"errors-qa-{chunk_s}.json"
 
 llama2 = AutoModelForCausalLM.from_pretrained(
     model_name,
@@ -120,21 +121,22 @@ for root, directories, files in os.walk(folder_path):
             temp_error_nodes = 0
             for node in nodes:
                 try:
-                    prompt_ts = generate_topic_summary_prompt(str(node.text))[
+                    prompt_qa = generate_label_data_prompt(str(node.text))[
                         'text']
-                    output_response_ts = llama2_QA_pipeline(
-                        prompt_ts)[0]['generated_text']
-                    output_text_ts = output_response_ts.split('\nOUTPUT:')[1]
-
-                    json_ts = json.loads(remove_tailed_text(output_text_ts))
-                    write_dict_ts = {
-                        'source': file_path[:-4], 'context': node.text, 'ts': json_ts}
+                    output_response_qa = llama2_QA_pipeline(
+                        prompt_qa)[0]['generated_text']
+                    output_text_qa = output_response_qa.split('\nOUTPUT:')[1]
+                    json_qa = json.loads(remove_tailed_text(output_text_qa))
+                    write_dict = {
+                        'source': file_path[:-4], 'context': node.text, 'qa': json_qa}
 
                     # Open the file in append mode
-                    with open(ts_file_path, "a") as json_file_ts:
+                    with open(qa_file_path, "a") as json_file:
                         # Serialize the JSON data
-                        json_string_ts = json.dumps(write_dict_ts)
-                        json_file_ts.write(json_string_ts + "\n")
+                        json_string = json.dumps(write_dict)
+
+                        # Write the serialized JSON string to the file
+                        json_file.write(json_string + "\n")
 
                     with open(success_txt_path, 'a') as success_file:
                         success_file.write(f'{node.id_}-{file_path}')
@@ -148,7 +150,7 @@ for root, directories, files in os.walk(folder_path):
                     temp_error_nodes += 1
                     with open(error_file_path, 'a') as error_file:
                         json_string_error = json.dumps(
-                            {'source': file_path[:-4], 'id': node.id_, 'error': e, 'context': node.text, 'response': output_text_ts})
+                            {'source': file_path[:-4], 'id': node.id_, 'error': e, 'context': node.text, 'response': output_text_qa})
                         error_file.write(json_string_error + "\n")
 
             with open(success_total_nodes_txt_path, 'a') as success_nodes_file:
