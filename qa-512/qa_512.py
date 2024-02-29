@@ -95,16 +95,13 @@ def remove_tailed_text(response):
     i = 0
     k = ''
     for l in response[::-1]:
-        if l != ']':
+        if l != ']' and l != '}':
             i += 1
         else:
-            k = ']'
-            break
-
-        if l != '}':
-            i += 1
-        else:
-            k = '}]'
+            if l == ']':
+                k = ']'
+            else:
+                k = '}]'
             break
 
     if i == 0:
