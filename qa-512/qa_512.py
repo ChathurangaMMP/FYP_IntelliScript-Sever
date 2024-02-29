@@ -8,8 +8,8 @@ import os
 
 node_count = 1
 
-folder_path = "/content/gdrive/MyDrive/Extracted-text-CBSL-data/FINANCIAL SYSTEM"  # TO_CHANGE
-model_name = "NousResearch/Llama-2-7b-chat-hf"  # TO_CHANGE
+folder_path = "../Extracted-text-CBSL-data/FINANCIAL SYSTEM"  # TO_CHANGE
+model_name = "../Llama-2-7b-chat-hf"  # TO_CHANGE
 chunk_s = 512  # TO_CHANGE
 
 qa_file_path = f"qa-{chunk_s}.json"
