@@ -12,10 +12,10 @@ folder_path = "../Extracted-text-CBSL-data/FINANCIAL SYSTEM"  # TO_CHANGE
 model_name = "../Llama-2-7b-chat-hf"  # TO_CHANGE
 chunk_s = 950  # TO_CHANGE
 
-qa_file_path = f"qa-{chunk_s}.json"
-success_txt_path = f"success-files-qa-{chunk_s}.txt"
-success_total_nodes_txt_path = f"success-total-node-details-qa-{chunk_s}.txt"
-error_file_path = f"errors-qa-{chunk_s}.json"
+qa_file_path = f"qa-{chunk_s}-2.json"
+success_txt_path = f"success-files-qa-{chunk_s}-2.txt"
+success_total_nodes_txt_path = f"success-total-node-details-qa-{chunk_s}-2.txt"
+error_file_path = f"errors-qa-{chunk_s}-2.json"
 
 llama2 = AutoModelForCausalLM.from_pretrained(
     model_name,
@@ -68,7 +68,7 @@ def generate_label_data_prompt(context):
         - Give the OUTPUT in JSON format with each dictionary contains query and response. Do not generate any text after the JSON in OUTPUT.
         - Do not generate incomplete dictionaries for the output. Always give a complete JSON
 
-        EXAMPLE_OUTPUT:[{'query': , 'response': }, {'query': , 'response': }]
+        EXAMPLE_OUTPUT:[{"query": , "response": }, {"query": , "response": }]
 
         '''
 
@@ -85,7 +85,7 @@ def generate_topic_summary_prompt(context):
           - Give the OUTPUT in JSON format with each dictionary contains topic and summary. Do not generate any text after the JSON in OUTPUT.
           - Do not generate incomplete dictionaries for the output. Always give a complete JSON
 
-          EXAMPLE_OUTPUT:[{'topic': , 'summary': }, {'topic': , 'summary': }]
+          EXAMPLE_OUTPUT:[{"topic": , "summary": }, {"topic": , "summary": }]
           
           '''
 

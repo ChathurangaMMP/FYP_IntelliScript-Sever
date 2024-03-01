@@ -68,7 +68,7 @@ def generate_label_data_prompt(context):
         - Give the OUTPUT in JSON format with each dictionary contains query and response. Do not generate any text after the JSON in OUTPUT.
         - Do not generate incomplete dictionaries for the output. Always give a complete JSON
         
-        EXAMPLE_OUTPUT:[{'query': , 'response': }, {'query': , 'response': }]
+        EXAMPLE_OUTPUT:[{"query": , "response": }, {"query": , "response": }]
 
         '''
 
@@ -85,7 +85,7 @@ def generate_topic_summary_prompt(context):
           - Give the OUTPUT in JSON format with each dictionary contains topic and summary. Do not generate any text after the JSON in OUTPUT.
           - Do not generate incomplete dictionaries for the output. Always give a complete JSON
 
-          EXAMPLE_OUTPUT:[{'topic': , 'summary': }, {'topic': , 'summary': }]
+          EXAMPLE_OUTPUT:[{"topic": , "summary": }, {"topic": , "summary": }]
           
           '''
 
