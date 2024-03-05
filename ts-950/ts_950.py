@@ -1,10 +1,14 @@
-from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
-import torch
-from llama_index.core import SimpleDirectoryReader
-from llama_index.core.node_parser import SentenceSplitter
-from transformers import pipeline
-import json
 import os
+import json
+from transformers import pipeline
+from llama_index.core.node_parser import SentenceSplitter
+from llama_index.core import SimpleDirectoryReader
+import torch
+from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
+'''
+
+12-ts-950
+'''
 
 node_count = 1
 folder_path = "../Extracted-text-CBSL-data/FINANCIAL SYSTEM"  # TO_CHANGE
