@@ -80,7 +80,9 @@ llama2 = get_peft_model(llama2, peft_config)
 # Login to the Hugging Face Hub
 login(token="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")
 
+output_dir = 'llama-2-7b-clm-model'
 training_args = TrainingArguments(
+    output_dir=output_dir,
     evaluation_strategy="steps",
     do_eval=True,
     auto_find_batch_size=True,  # this is risky
