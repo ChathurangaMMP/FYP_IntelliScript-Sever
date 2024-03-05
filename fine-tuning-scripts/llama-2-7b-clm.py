@@ -1,3 +1,4 @@
+from peft import LoraConfig
 from huggingface_hub import login
 from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig, TrainingArguments, Trainer, DataCollatorForLanguageModeling
 from datasets import Dataset
@@ -15,6 +16,7 @@ llama2 = AutoModelForCausalLM.from_pretrained(
     torch_dtype=torch.float16,
     device_map="auto",
     trust_remote_code=True,
+    load_in_4bit=True,
     # quantization_config=BitsAndBytesConfig(
     #     load_in_4bit=True,
     #     bnb_4bit_compute_dtype=torch.float16,
@@ -54,6 +56,16 @@ tokenizer.pad_token = tokenizer.eos_token
 data_collator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=False)
 
 
+peft_config = LoraConfig(
+    lora_alpha=16,
+    lora_dropout=0.1,
+    r=64,
+    bias="none",
+    task_type="CAUSAL_LM",
+)
+
+llama2.add_adapter(peft_config)
+
 # Login to the Hugging Face Hub
 login(token="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")
 
@@ -74,3 +86,5 @@ trainer = Trainer(
 )
 
 trainer.train()
+
+llama2.save_pretrained('llama-2-7b-clm-model')
