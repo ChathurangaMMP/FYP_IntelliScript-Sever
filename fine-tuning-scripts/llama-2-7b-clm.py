@@ -31,14 +31,16 @@ tokenizer.padding_side = "right"
 
 documents_fs = SimpleDirectoryReader(
     input_dir="../Extracted-text-CBSL-data/FINANCIAL SYSTEM", required_exts=['.txt'], recursive=True).load_data()
-documents_law = SimpleDirectoryReader(
-    input_dir="../Extracted-text-CBSL-data/LAWS", required_exts=['.txt'], recursive=True).load_data()
+# documents_law = SimpleDirectoryReader(
+#     input_dir="../Extracted-text-CBSL-data/LAWS", required_exts=['.txt'], recursive=True).load_data()
 
 
 node_parser = SentenceSplitter(chunk_size=512)
 nodes_fs = node_parser.get_nodes_from_documents(documents_fs)
-nodes_law = node_parser.get_nodes_from_documents(documents_law)
-nodes = nodes_fs+nodes_law
+# nodes_law = node_parser.get_nodes_from_documents(documents_law)
+# nodes = nodes_fs+nodes_law
+
+nodes = nodes_fs
 
 node_texts = [tokenizer(t.text) for t in nodes]
 
@@ -90,13 +92,13 @@ training_args = TrainingArguments(
     log_level="debug",
     # optim="paged_adamw_32bit",
     optim="paged_adamw_32bit",
-    save_steps=1000,
+    save_steps=800,
     logging_steps=100,
     learning_rate=1e-6,
     weight_decay=0.01,
     # basically just train for 5 epochs, you should train for longer
     max_steps=int(len(train_data) * 1),
-    warmup_steps=350,
+    warmup_steps=150,
     gradient_checkpointing=True,
 )
 
