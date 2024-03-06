@@ -130,8 +130,8 @@ tuned_llama2_model = AutoPeftModelForCausalLM.from_pretrained(
 
 merged_model = tuned_llama2_model.merge_and_unload()
 
-# merged_model.save_pretrained("llama-2-merged_model", safe_serialization=True)
-# tokenizer.save_pretrained("llama-2-merged_model")
+merged_model.save_pretrained("llama-2-merged_model", safe_serialization=True)
+tokenizer.save_pretrained("llama-2-merged_model")
 
 hf_model_repo = 'mmpc/llama-2-7b-clm'
 # push merged model to the hub
