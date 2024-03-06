@@ -117,7 +117,7 @@ trainer = Trainer(
 # trainer.model.save_pretrained('llama-2-7b-clm-model')
 
 llama2.generation_config = GenerationConfig.from_model_config(llama2.config)
-
+llama2.generation_config.do_sample = True
 
 tuned_llama2_model = AutoPeftModelForCausalLM.from_pretrained(
     training_args.output_dir,
