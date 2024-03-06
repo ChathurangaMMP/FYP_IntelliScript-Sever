@@ -1,3 +1,4 @@
+from transformers import GenerationConfig
 from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training, AutoPeftModelForCausalLM
 from huggingface_hub import login
 from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig, TrainingArguments, Trainer, DataCollatorForLanguageModeling
@@ -16,7 +17,6 @@ llama2 = AutoModelForCausalLM.from_pretrained(
     torch_dtype=torch.float16,
     device_map="auto",
     trust_remote_code=True,
-    do_sample=True,
     quantization_config=BitsAndBytesConfig(
         load_in_4bit=True,
         bnb_4bit_compute_dtype=torch.float16,
@@ -116,6 +116,8 @@ trainer = Trainer(
 # trainer.save_state()
 # trainer.model.save_pretrained('llama-2-7b-clm-model')
 
+llama2.generation_config = GenerationConfig.from_model_config(llama2.config)
+
 
 tuned_llama2_model = AutoPeftModelForCausalLM.from_pretrained(
     training_args.output_dir,
@@ -123,8 +125,7 @@ tuned_llama2_model = AutoPeftModelForCausalLM.from_pretrained(
     # torch_dtype='auto',
     trust_remote_code=True,
     device_map='auto',
-    offload_folder="offload/",
-    do_sample=True
+    offload_folder="offload/"
 )
 
 merged_model = tuned_llama2_model.merge_and_unload()
