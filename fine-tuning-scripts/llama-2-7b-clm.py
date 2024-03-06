@@ -116,8 +116,8 @@ trainer = Trainer(
 # trainer.save_state()
 # trainer.model.save_pretrained('llama-2-7b-clm-model')
 
-llama2.generation_config = GenerationConfig.from_model_config(llama2.config)
-llama2.generation_config.do_sample = True
+# llama2.generation_config = GenerationConfig.from_model_config(llama2.config)
+# llama2.generation_config.do_sample = True
 
 tuned_llama2_model = AutoPeftModelForCausalLM.from_pretrained(
     training_args.output_dir,
@@ -130,8 +130,8 @@ tuned_llama2_model = AutoPeftModelForCausalLM.from_pretrained(
 
 merged_model = tuned_llama2_model.merge_and_unload()
 
-merged_model.save_pretrained("llama-2-merged_model", safe_serialization=True)
-tokenizer.save_pretrained("llama-2-merged_model")
+# merged_model.save_pretrained("llama-2-merged_model", safe_serialization=True)
+# tokenizer.save_pretrained("llama-2-merged_model")
 
 hf_model_repo = 'mmpc/llama-2-7b-clm'
 # push merged model to the hub
