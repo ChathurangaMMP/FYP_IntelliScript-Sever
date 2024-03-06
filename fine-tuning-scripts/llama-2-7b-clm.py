@@ -110,10 +110,10 @@ trainer = Trainer(
     data_collator=data_collator,
 )
 
-trainer.train()
+# trainer.train()
 
-trainer.save_state()
-trainer.model.save_pretrained('llama-2-7b-clm-model')
+# trainer.save_state()
+# trainer.model.save_pretrained('llama-2-7b-clm-model')
 
 
 tuned_llama2_model = AutoPeftModelForCausalLM.from_pretrained(
@@ -122,7 +122,8 @@ tuned_llama2_model = AutoPeftModelForCausalLM.from_pretrained(
     # torch_dtype='auto',
     trust_remote_code=True,
     device_map='auto',
-    offload_folder="offload/"
+    offload_folder="offload/",
+    do_sample=True
 )
 
 merged_model = tuned_llama2_model.merge_and_unload()
