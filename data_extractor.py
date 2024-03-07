@@ -2,6 +2,7 @@ import os
 
 from extractor import Extractor
 
+extractor = Extractor()
 
 source_dir = "../CBSL-data/"
 output_dir = "../Extracted-text-CBSL-data-new/"
