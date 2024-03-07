@@ -17,7 +17,9 @@ import csv
 import whisper
 from fpdf import FPDF
 
-from docx2pdf import convert
+from spire.doc import FileFormat as FPdoc
+from spire.doc import *
+from spire.doc.common import *
 
 from spire.presentation import *
 from spire.presentation.common import *
@@ -50,6 +52,11 @@ class Extractor:
         self.structure_model = TableTransformerForObjectDetection.from_pretrained(
             "microsoft/table-transformer-structure-recognition")
         self.label_dict = self.structure_model.config.id2label
+
+        # Create a Presentation object
+        self.presentation = Presentation()
+        # Create a Document object
+        self.document = Document()
 
     # service function
 
@@ -202,25 +209,27 @@ class Extractor:
 
     # Doc extractor
     def convert_docx_to_pdf(self, docx_file, pdf_file):
-        convert(docx_file, pdf_file)
+
+        self.document.LoadFromFile(rf"{docx_file}")
+
+        self.document.SaveToFile(pdf_file, FPdoc.PDF)
+        self.document.Close()
 
     def doc_extractor(self, doc_path):
         name = doc_path.split("\\")[-1].split(".")[0]+".pdf"
         self.convert_docx_to_pdf(doc_path, "temp\\"+name)
-        text = self.pdf_extractor("temp\\"+name, output)
+        text = self.pdf_extractor("temp\\"+name)
         self.delete_file("temp\\"+name)
         return text
 
     # PPTX extractor
     def convert_pptx_to_pdf(self, pptx_path, pdf_file):
 
-        # Create a Presentation object
-        presentation = Presentation()
-        presentation.LoadFromFile(pptx_path)
+        self.presentation.LoadFromFile(pptx_path)
 
         # Convert the presentation to PDF format
-        presentation.SaveToFile(pdf_file, FileFormat.PDF)
-        presentation.Dispose()
+        self.presentation.SaveToFile(pdf_file, FileFormat.PDF)
+        self.presentation.Dispose()
         print("Convertion done")
 
     def pptx_extractor(self, pptx_path):
@@ -244,7 +253,7 @@ class Extractor:
     # CSV extractor
     def read_csv_and_format(self, csv_file):
         # Read CSV file
-        with open(csv_file, 'r') as file:
+        with open(csv_file, 'r', encoding='ISO-8859-1') as file:
             reader = csv.reader(file)
             data = list(reader)
 
@@ -427,38 +436,41 @@ class Extractor:
         json_data_list = []
 
         for page_number in range(len(doc)):
-            json_data = self.pdf_page_to_json(doc, page_number)
-            json_data = json.loads(json_data)
-            json_data_list.append(json_data)
-            ava = self.squ_ava_fac(json_data)
-            if (ava != 0):
-                get_ava += ava
-                ind += 1
+            text = doc[page_number].get_text()
+            if not text:
 
-        wid_fac = (get_ava/ind)**0.5
+                page = doc.load_page(page_number)
+                pix = page.get_pixmap()
+                image = Image.frombytes(
+                    "RGB", [pix.width, pix.height], pix.samples)
+                text = pytesseract.image_to_string(image)
+                txt_content += text + "\n"
+                json_data = {"ocr": True, "text": txt_content}
+
+            else:
+                json_data = self.pdf_page_to_json(doc, page_number)
+                json_data = json.loads(json_data)
+                json_data["ocr"] = False
+                json_data_list.append(json_data)
+                ava = self.squ_ava_fac(json_data)
+                if (ava != 0):
+                    get_ava += ava
+                    ind += 1
+
+        try:
+            wid_fac = (get_ava/ind)**0.5
+
+        except:
+            wid_fac = 0
 
         print(wid_fac)
 
         for json_data in json_data_list:
-            txt = self.json_to_text(json_data, wid_fac)
+            if (json_data["ocr"]):
+                txt = json_data["text"]
+            else:
+                txt = self.json_to_text(json_data, wid_fac)
 
             txt_content += txt
 
         return txt_content
-
-
-# ocr = TesseractOCR(n_threads=1, lang="eng")
-# csv_path = "SampleCSVFile_2kb.csv"
-# doc_path = "AutoRecovery save of Document1.docx"
-# pdf_path = "fssr_2013e.pdf"
-# pptx_path = "Front Page.pptx"
-# audio_path = "engm1.wav"
-# output = "example.txt"
-
-
-# init()
-# #csv_extractor(csv_path,output)
-# #pdf_extractor(pdf_path,output)
-# #doc_extractor(doc_path,output)
-# #pptx_extractor(pptx_path,output)
-# audio_extractor(audio_path,output)
