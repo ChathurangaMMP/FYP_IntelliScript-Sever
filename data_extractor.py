@@ -9,7 +9,13 @@ output_dir = "../Extracted-text-CBSL-data-new/"
 count = 0
 error_count = 0
 
-with open('errored-files.txt', 'r', encoding='utf-8') as error_file:
+error_file_path = "errored-files.txt"
+
+if not os.path.exists(error_file_path):
+    with open(error_file_path, 'w') as file:
+        file.write("")
+
+with open(error_file_path, 'r', encoding='utf-8') as error_file:
     error_filenames = error_file.read().split('\n')
 
 for root, directories, files in os.walk(source_dir):
@@ -41,5 +47,5 @@ for root, directories, files in os.walk(source_dir):
         except Exception as e:
             error_count += 1
             print(f"{error_count}E - {e} - {input_file_path}")
-            with open('errored-files.txt', 'a', encoding='utf-8') as error_file_write:
+            with open(error_file_path, 'a', encoding='utf-8') as error_file_write:
                 error_file_write.write(input_file_path+'\n')
