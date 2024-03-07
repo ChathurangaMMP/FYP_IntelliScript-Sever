@@ -3,8 +3,8 @@ import os
 from extractor import Extractor
 
 
-source_dir = "~/FYP-Prasad/CBSL-data/"
-output_dir = "~/FYP-Prasad/Extracted-text-CBSL-data/"
+source_dir = "../CBSL-data/"
+output_dir = "../Extracted-text-CBSL-data-new/"
 count = 0
 error_count = 0
 
