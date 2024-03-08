@@ -48,7 +48,7 @@ for root, directories, files in os.walk(source_dir):
             error_count += 1
             print(f"{error_count}E - {e} - {input_file_path}")
             with open(error_file_path, 'a', encoding='utf-8') as error_file_write:
-                error_file_write.write(input_file_path+'\n')
+                error_file_write.write(f"{e} - {input_file_path}\n")
 
 
 print(f"Success: {count} - Errors: {error_count}")
