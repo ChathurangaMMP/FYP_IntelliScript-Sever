@@ -31,7 +31,7 @@ for root, directories, files in os.walk(source_dir):
 
             # Determine the output file path
             output_file_path = os.path.join(
-                output_dir, os.path.relpath(root, source_dir), file[:-3] + 'txt')
+                output_dir, os.path.relpath(root, source_dir), file[:file.rfind('.')+1] + 'txt')
 
             if not os.path.exists(output_file_path) and input_file_path not in error_filenames:
                 text = extractor.extractor(input_file_path)
