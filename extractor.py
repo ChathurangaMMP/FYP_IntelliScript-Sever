@@ -79,6 +79,12 @@ class Extractor:
         elif (extension in ["csv"]):
             return self.csv_extractor(path)
 
+        elif (extension in ["xlsx"]):
+            return self.xlsx_extractor(path)
+
+        elif (extension in ["xls"]):
+            return self.xls_extractor(path)
+
         elif (extension in ["pdf"]):
             return self.pdf_extractor(path)
 
@@ -205,6 +211,32 @@ class Extractor:
                                              self.feature_extractor, self.label_dict)+"\n"
                 # text+= pytesseract.image_to_string(pil_image, lang='eng') +"\n"
 
+        return text
+
+    # Xls extractor
+
+    def convert_xls_to_csv(self, xls_file, csv_file):
+        data = pd.read_excel(xls_file, engine='xlrd')
+        data.to_csv(csv_file, index=False)
+
+    def xls_extractor(self, xls_path):
+        name = xls_path.split("\\")[-1].split(".")[0]+".csv"
+        self.convert_xls_to_csv(xls_path, "temp\\"+name)
+        text = self.csv_extractor("temp\\"+name)
+        self.delete_file("temp\\"+name)
+        return text
+
+    # Xlsx extractor
+
+    def convert_xlsx_to_csv(self, xlsx_file, csv_file):
+        data = pd.read_excel(xlsx_file)
+        data.to_csv(csv_file, index=False)
+
+    def xlsx_extractor(self, xlsx_path):
+        name = xlsx_path.split("\\")[-1].split(".")[0]+".csv"
+        self.convert_xlsx_to_csv(xlsx_path, "temp\\"+name)
+        text = self.csv_extractor("temp\\"+name)
+        self.delete_file("temp\\"+name)
         return text
 
     # Doc extractor
