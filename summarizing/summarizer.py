@@ -33,7 +33,7 @@ def create_document_chunks(file_path, chunk_size):
         input_files=[file_path], encoding='utf-8')
     documents = file_reader.load_data()
 
-    node_parser = SentenceSplitter(chunk_size=chunk_size)
+    node_parser = SentenceSplitter(chunk_size=chunk_size, chunk_overlap=50)
     nodes = node_parser.get_nodes_from_documents(documents)
 
     # by default, the node ids are set to random uuids. To ensure same id's per run, we manually set them.
@@ -67,10 +67,11 @@ def get_summarized(query):
     return output_text
 
 
-source_dir = "../Extracted-text-CBSL-data-new/"
-output_dir = "../Extracted-text-summarized/"
+source_dir = "../../Extracted-text-CBSL-data-new/"
+output_dir = "Extracted-text-summarized/"
 count = 0
 error_count = 0
+short_count = 0
 
 llama2, llama2_tokenizer = load_llama2_quantized(
     'NousResearch/Llama-2-7b-chat-hf')
@@ -106,14 +107,29 @@ for root, directories, files in os.walk(source_dir):
         try:
             input_file_path = os.path.join(root, file)
 
-            with open(input_file_path, 'r') as infile:
+            with open(input_file_path, 'r', encoding='utf-8') as infile:
                 data = infile.read()
 
-            # Determine the output file path
-            output_file_path = os.path.join(
-                output_dir, os.path.relpath(root, source_dir), file[:-3] + 'txt')
+            if len(data) > 1500:
+                # Determine the output file path
+                output_file_path = os.path.join(
+                    output_dir, os.path.relpath(root, source_dir), file[:file.rfind('.')+1] + 'txt')
 
-            count += 1
+                chunks = create_document_chunks(input_file_path, 512)
+                full_text = ''
+                for chunk in chunks:
+                    summary = get_summarized(chunk.text)
+                    full_text += f'{summary}\n'
+
+                with open(output_file_path, 'w', encoding='utf-8') as outfile:
+                    outfile.write(full_text)
+
+                count += 1
+
+                print(f'File {count} - {input_file_path}')
+
+            else:
+                short_count += 1
 
         except:
             error_count += 1
@@ -125,4 +141,4 @@ for root, dirs, files in os.walk(output_dir, topdown=False):
             os.rmdir(folder_path)
             print(f"Deleted empty folder: {folder_path}")
 
-print(f"Success: {count} - Errors: {error_count}")
+print(f"Success: {count} - Errors: {error_count}, {short_count}")
