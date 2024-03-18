@@ -36,7 +36,7 @@ async def user_query(user_query: Query):
     logger.info(f'User query: {user_query.id}-{user_query.query}')
     response = response_generation(user_query.query)
     logger.info(f'LLM response: {user_query.id}-{response}')
-    return {'id': user_query.id, 'response': response}
+    return {'id': user_query.id, 'content': response}
 
 if __name__ == "__main__":
     uvicorn.run(app, port=8000)
