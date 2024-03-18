@@ -67,8 +67,8 @@ def get_summarized(query):
     return output_text
 
 
-source_dir = "../../Extracted-text-CBSL-data-new-cleaned/"
-output_dir = "Extracted-text-summarized-new/"
+source_dir = "../../Extracted-text-CBSL-data-new-cleaned/LAWS/"
+output_dir = "Extracted-text-summarized-new/LAWS/"
 count = 0
 error_count = 0
 short_count = 0
@@ -115,11 +115,15 @@ for root, directories, files in os.walk(source_dir):
                 output_file_path = os.path.join(
                     output_dir, os.path.relpath(root, source_dir), file[:file.rfind('.')+1] + 'txt')
 
-                chunks = create_document_chunks(input_file_path, 512)
+                chunks = create_document_chunks(input_file_path, 750)
+                chunk_count = 0
                 full_text = ''
                 for chunk in chunks:
                     summary = get_summarized(chunk.text)
                     full_text += f'{summary}\n'
+                    chunk_count += 1
+
+                    print(f'    {chunk_count} of {len(chunks)} Chunks')
 
                 with open(output_file_path, 'w', encoding='utf-8') as outfile:
                     outfile.write(full_text)
