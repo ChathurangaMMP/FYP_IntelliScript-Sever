@@ -67,8 +67,8 @@ def get_summarized(query):
     return output_text
 
 
-source_dir = "../../Extracted-text-CBSL-data-new-cleaned/FINANCIAL SYSTEM/"
-output_dir = "Extracted-text-summarized-new/FINANCIAL SYSTEM/"
+source_dir = "../../Extracted-text-CBSL-data-new-cleaned/PRESS/"
+output_dir = "Extracted-text-summarized-new/PRESS/"
 count = 0
 error_count = 0
 short_count = 0
